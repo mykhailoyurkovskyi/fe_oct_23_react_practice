@@ -17,25 +17,54 @@ const products = productsFromServer.map((product) => {
   };
 });
 
-function filterProductByName(arrOfProducts, searchQuery, selectedUserFilter) {
+function filterProductByName(arrOfProducts,
+  searchQuery,
+  selectedUserFilter,
+  selectedCategoryFilter) {
+  if (!searchQuery && selectedUserFilter === 'All'
+    && (!selectedCategoryFilter || selectedCategoryFilter === 'All')) {
+    return arrOfProducts;
+  }
+
   return arrOfProducts.filter((product) => {
-    const preparedQuery = searchQuery ? searchQuery.toLowerCase() : '';
+    const preparedQuery = searchQuery.toLowerCase();
     const preparedProductName = product.name.toLowerCase();
-    const preparedUserFilter = selectedUserFilter
-      ? selectedUserFilter.toLowerCase() : '';
+    const preparedUserFilter = selectedUserFilter.toLowerCase();
+    const preparedUserName = product.user.name.toLowerCase();
+    const preparedCategoryTitle = product.category.title.toLowerCase();
+    const preparedCategoryFilter = (selectedCategoryFilter
+      && selectedCategoryFilter !== 'All')
+      ? selectedCategoryFilter.toLowerCase()
+      : null;
 
     return (
       (searchQuery ? preparedProductName.includes(preparedQuery) : true)
-      && (selectedUserFilter
-        ? product.user.name.toLowerCase() === preparedUserFilter : true)
+      && (selectedUserFilter === 'All'
+        ? true : preparedUserName === preparedUserFilter)
+      && (!preparedCategoryFilter
+        || preparedCategoryTitle === preparedCategoryFilter)
     );
   });
 }
 
 export const App = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedUserFilter, setSelectedUserFilter] = useState('');
-  const visibleProducts = filterProductByName(products, searchQuery);
+  const [selectedUserFilter, setSelectedUserFilter] = useState('All');
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('All');
+  const visibleProducts = filterProductByName(products,
+    searchQuery,
+    selectedUserFilter,
+    selectedCategoryFilter);
+
+  const resetFilter = () => {
+    setSearchQuery('');
+  };
+
+  const resetAllFilters = () => {
+    setSearchQuery('');
+    setSelectedUserFilter('All');
+    setSelectedCategoryFilter('All');
+  };
 
   return (
     <div className="section">
@@ -50,6 +79,8 @@ export const App = () => {
               <a
                 data-cy="FilterAllUsers"
                 href="#/"
+                className={selectedUserFilter === 'All' ? 'is-active' : ''}
+                onClick={() => setSelectedUserFilter('All')}
               >
                 All
               </a>
@@ -57,6 +88,9 @@ export const App = () => {
                 <a
                   data-cy="FilterUser"
                   href="#/"
+                  className={selectedUserFilter === user.name
+                    ? 'is-active' : ''}
+                  onClick={() => setSelectedUserFilter(user.name)}
                 >
                   {user.name}
                 </a>
@@ -86,6 +120,7 @@ export const App = () => {
                     data-cy="ClearButton"
                     type="button"
                     className="delete"
+                    onClick={resetFilter}
                   />
                 </span>
               </p>
@@ -96,6 +131,7 @@ export const App = () => {
                 href="#/"
                 data-cy="AllCategories"
                 className="button is-success mr-6 is-outlined"
+                onClick={() => setSelectedCategoryFilter('All')}
               >
                 All
               </a>
@@ -105,6 +141,7 @@ export const App = () => {
                   data-cy="Category"
                   className="button mr-2 my-1 is-info"
                   href="#/"
+                  onClick={() => setSelectedCategoryFilter(cat.title)}
                 >
                   {cat.title}
                 </a>
@@ -116,6 +153,7 @@ export const App = () => {
                 data-cy="ResetAllButton"
                 href="#/"
                 className="button is-link is-outlined is-fullwidth"
+                onClick={resetAllFilters}
               >
                 Reset all filters
               </a>
