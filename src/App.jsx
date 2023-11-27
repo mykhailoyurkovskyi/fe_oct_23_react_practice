@@ -17,7 +17,7 @@ const products = productsFromServer.map((product) => {
   };
 });
 
-function filterProductByName(arrOfProducts,
+function filterProducts(arrOfProducts,
   searchQuery,
   selectedUserFilter,
   selectedCategoryFilter) {
@@ -51,7 +51,7 @@ export const App = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUserFilter, setSelectedUserFilter] = useState('All');
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('All');
-  const visibleProducts = filterProductByName(products,
+  const visibleProducts = filterProducts(products,
     searchQuery,
     selectedUserFilter,
     selectedCategoryFilter);
@@ -139,7 +139,8 @@ export const App = () => {
                 <a
                   key={cat.id}
                   data-cy="Category"
-                  className="button mr-2 my-1 is-info"
+                  className={`button mr-2 my-1${selectedCategoryFilter === 'button mr-2 my-1'
+                    ? 'button is-success mr-6 is-outlined' : ''}`}
                   href="#/"
                   onClick={() => setSelectedCategoryFilter(cat.title)}
                 >
